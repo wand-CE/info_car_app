@@ -4,6 +4,7 @@ class Carro {
   String? valor;
   String? descricao;
   String? imgUrl;
+  bool favorito;
 
   Carro({
     this.modelo,
@@ -11,10 +12,10 @@ class Carro {
     this.valor,
     this.descricao,
     this.imgUrl,
+    this.favorito = false,
   });
 
   factory Carro.fromJson(Map<String, dynamic> json) {
-    print('AQUI: $json');
     return switch (json) {
       {
         'model': String model,

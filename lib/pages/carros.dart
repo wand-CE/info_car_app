@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:info_car_app/models/carro.dart';
+import 'package:info_car_app/models/favoritos_carros.dart';
 import 'package:info_car_app/models/marca.dart';
 import 'package:info_car_app/service.dart';
+import 'package:provider/provider.dart';
 
 class PageCar extends StatelessWidget {
   const PageCar({Key? key});
@@ -60,7 +62,6 @@ class MarcasBox extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      // Aqui você pode navegar para a página de lista de veículos da marca
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -181,28 +182,31 @@ class _MarcasPage extends State<ListaMarcasPage> {
                       padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                       height: 100,
                       width: double.maxFinite,
-                      child: Row(
-                        children: [
-                          // Image.network(
-                          //   '${marca.logoUrl}',
-                          //   errorBuilder: (context, error, stackTrace) {
-                          //     return Container(
-                          //       color: Colors.amber,
-                          //       alignment: Alignment.center,
-                          //       child: const Text(
-                          //         'Whoops!',
-                          //         style: TextStyle(fontSize: 30),
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: ListTile(
-                              title: Text(marca.nome ?? ''),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ListaVeiculosPage(
+                                  marcaId: '${marca.marcaId}'),
                             ),
-                          ),
-                        ],
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              'images/acura_logo.png',
+                              width: 70,
+                              height: 70,
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: ListTile(
+                                title: Text(marca.nome ?? ''),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                 ],
@@ -239,6 +243,9 @@ class _VeiculosPage extends State<ListaVeiculosPage> {
 
   @override
   Widget build(BuildContext context) {
+    FavoritosCarros carrosFavoritos =
+        Provider.of<FavoritosCarros>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Veículos da Marca'),
@@ -252,7 +259,52 @@ class _VeiculosPage extends State<ListaVeiculosPage> {
               return ListView(
                 children: [
                   for (Carro carro in data)
-                    Text('${carro.modelo} ${carro.marca}'),
+                    Container(
+                      color: Colors.grey.shade300,
+                      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                      height: 100,
+                      width: double.maxFinite,
+                      child: Row(
+                        children: [
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: ListTile(
+                              leading: Image.asset(
+                                'images/integra.png',
+                                width: 70,
+                                height: 70,
+                              ),
+                              title: Text(carro.modelo ?? ''),
+                              subtitle: Text(carro.marca ?? ''),
+                            ),
+                          ),
+                          InkWell(
+                            onTap: () {
+                              carrosFavoritos.add(carro);
+
+                              setState(() {
+                                carro.favorito = !carro.favorito;
+                              });
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                carro.favorito
+                                    ? Icons.favorite
+                                    : Icons.favorite_border_outlined,
+                                color:
+                                    carro.favorito ? Colors.red : Colors.black,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                 ],
               );
             } else if (snapshot.hasError) {

@@ -9,7 +9,20 @@ class FavoritosCarros extends ChangeNotifier {
   UnmodifiableListView<Carro> get carros => UnmodifiableListView(_carros);
 
   void add(Carro carro) {
-    _carros.add(carro);
-    notifyListeners();
+    if (isInlist(carro)) {
+      _carros.add(carro);
+      notifyListeners();
+    }
+  }
+
+  void remove(Carro carro) {
+    if (_carros.contains(carro)) {
+      _carros.remove(carro);
+      notifyListeners();
+    }
+  }
+
+  bool isInlist(Carro carro) {
+    return _carros.every((car) => car.modelo != carro.modelo);
   }
 }
